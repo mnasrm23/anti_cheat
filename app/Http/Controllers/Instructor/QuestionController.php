@@ -9,16 +9,25 @@ use Illuminate\Http\Request;
 
 class QuestionController extends Controller
 {
-     public function store(Request $request, $examId)
+    public function store(Request $request, $examId)
     {
-        $question = Question::create([
-            'exam_id' => $examId,
-            'question_text' => $request->question_text,
-            'type' => $request->type,
-            'mark' => $request->mark,
+        $validated = $request->validate([
+            'question_text' => 'required|string',
+            'type' => 'required|in:mcq,true_false',
+            'mark' => 'required|integer|min:1',
+            'options' => 'required|array|min:2',
+            'options.*.text' => 'required|string',
+            'options.*.is_correct' => 'boolean',
         ]);
 
-        foreach ($request->options as $opt) {
+        $question = Question::create([
+            'exam_id' => $examId,
+            'question_text' => $validated['question_text'],
+            'type' => $validated['type'],
+            'mark' => $validated['mark'],
+        ]);
+
+        foreach ($validated['options'] as $opt) {
             Option::create([
                 'question_id' => $question->id,
                 'option_text' => $opt['text'],

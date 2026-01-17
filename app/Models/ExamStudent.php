@@ -11,4 +11,6 @@ class ExamStudent extends Model
     protected $fillable = [
         'exam_id','student_id','score','started_at','submitted_at'
     ];
+
+    public $timestamps = false;
 }

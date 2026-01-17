@@ -8,16 +8,25 @@ use Illuminate\Http\Request;
 
 class ExamController extends Controller
 {
-     public function store(Request $request)
+    public function store(Request $request)
     {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'course_id' => 'required|exists:courses,id',
+            'total_marks' => 'required|integer|min:1',
+            'duration' => 'required|integer|min:1',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after:start_time',
+        ]);
+
         return Exam::create([
-            'title' => $request->title,
-            'course_id' => $request->course_id,
+            'title' => $validated['title'],
+            'course_id' => $validated['course_id'],
             'instructor_id' => auth()->id(),
-            'total_marks' => $request->total_marks,
-            'duration' => $request->duration,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
+            'total_marks' => $validated['total_marks'],
+            'duration' => $validated['duration'],
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
         ]);
     }
 
