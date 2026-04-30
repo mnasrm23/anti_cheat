@@ -13,6 +13,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->environment('production')) {
+            $this->command->error('Seeders cannot be run in production!');
+            return;
+        }
+
         $this->command->info('🌱 Starting database seeding...');
 
         // Create Instructors

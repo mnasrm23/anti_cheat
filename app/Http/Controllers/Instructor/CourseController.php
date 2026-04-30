@@ -33,6 +33,10 @@ class CourseController extends Controller
 
     public function show(Course $course)
     {
+        if ($course->instructor_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to this course.');
+        }
+
         return $course->load('exams');
     }
 }

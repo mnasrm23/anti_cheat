@@ -32,6 +32,12 @@ class ExamController extends Controller
 
     public function show($id)
     {
-        return Exam::with('questions.options')->findOrFail($id);
+        $exam = Exam::with('questions.options')->findOrFail($id);
+        
+        if ($exam->instructor_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to this exam.');
+        }
+
+        return $exam;
     }
 }

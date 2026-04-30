@@ -12,8 +12,12 @@ class StudentExamController extends Controller
 {
     public function available()
     {
-        return Exam::where('start_time','<=',now())
-            ->where('end_time','>=',now())
+        return Exam::where('start_time', '<=', now())
+            ->where('end_time', '>=', now())
+            ->whereDoesntHave('students', function ($query) {
+                $query->where('student_id', auth()->id())
+                      ->whereNotNull('submitted_at');
+            })
             ->get();
     }
 
@@ -31,35 +35,51 @@ class StudentExamController extends Controller
 
     public function submit(Request $request, Exam $exam)
     {
-        $score = 0;
+        $validated = $request->validate([
+            'answers' => 'required|array',
+            'answers.*.question_id' => 'required|exists:questions,id',
+            'answers.*.option_id' => 'nullable|exists:options,id',
+            'answers.*.answer_text' => 'nullable|string',
+        ]);
 
-        foreach ($request->answers as $ans) {
-            $answer = Answer::create([
+        $score = 0;
+        $questions = $exam->questions()->with('options')->get()->keyBy('id');
+        $answersToInsert = [];
+
+        foreach ($validated['answers'] as $ans) {
+            $question = $questions->get($ans['question_id']);
+            $isCorrect = false;
+
+            if (isset($ans['option_id'])) {
+                $option = $question->options->where('id', $ans['option_id'])->first();
+                if ($option && $option->is_correct) {
+                    $isCorrect = true;
+                    $score += $question->mark;
+                }
+            }
+
+            $answersToInsert[] = [
                 'exam_id' => $exam->id,
                 'question_id' => $ans['question_id'],
                 'student_id' => auth()->id(),
                 'option_id' => $ans['option_id'] ?? null,
                 'answer_text' => $ans['answer_text'] ?? null,
-            ]);
-
-            if ($answer->option && $answer->option->is_correct) {
-                $answer->is_correct = true;
-                $score += $answer->question->mark;
-            } else {
-                $answer->is_correct = false;
-            }
-
-            $answer->save();
+                'is_correct' => $isCorrect,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
         }
 
-        ExamStudent::where('exam_id',$exam->id)
-            ->where('student_id',auth()->id())
+        \App\Models\Answer::insert($answersToInsert);
+
+        ExamStudent::where('exam_id', $exam->id)
+            ->where('student_id', auth()->id())
             ->update([
                 'score' => $score,
                 'submitted_at' => now()
             ]);
 
-        return ['score' => $score];
+        return response()->json(['score' => $score]);
     }
 
     public function result(Exam $exam)

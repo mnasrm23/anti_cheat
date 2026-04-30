@@ -27,14 +27,15 @@ class ExamSeeder extends Seeder
             // Create 3 exams per course: one past, one current/active, one future
             
             // Past Exam
+            $pastDays = rand(7, 30);
             Exam::create([
                 'title' => 'Midterm Exam',
                 'course_id' => $course->id,
                 'instructor_id' => $course->instructor_id,
                 'total_marks' => 100,
                 'duration' => 120,
-                'start_time' => now()->subDays(rand(7, 30)),
-                'end_time' => now()->subDays(rand(7, 30))->addMinutes(120),
+                'start_time' => now()->subDays($pastDays),
+                'end_time' => now()->subDays($pastDays)->addMinutes(120),
             ]);
             $examCount++;
 
@@ -51,14 +52,15 @@ class ExamSeeder extends Seeder
             $examCount++;
 
             // Future Exam
+            $futureDays = rand(5, 20);
             Exam::create([
                 'title' => 'Final Exam',
                 'course_id' => $course->id,
                 'instructor_id' => $course->instructor_id,
                 'total_marks' => 100,
                 'duration' => 180,
-                'start_time' => now()->addDays(rand(5, 20)),
-                'end_time' => now()->addDays(rand(5, 20))->addMinutes(180),
+                'start_time' => now()->addDays($futureDays),
+                'end_time' => now()->addDays($futureDays)->addMinutes(180),
             ]);
             $examCount++;
         }
