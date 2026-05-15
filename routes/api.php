@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Instructor\CourseController;
 use App\Http\Controllers\Instructor\ExamController;
 use App\Http\Controllers\Instructor\QuestionController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\StudentExamController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,9 +16,9 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    
 
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/profile', [ProfileController::class, 'show']);
 
     
     // Instructor Routes 

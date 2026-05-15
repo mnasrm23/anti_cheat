@@ -14,8 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         //
         $middleware->alias([
-        'role' => \App\Http\Middleware\CheckRole::class,
-    ]);
+            'role'       => \App\Http\Middleware\CheckRole::class,
+            'student'    => \App\Http\Middleware\StudentMiddleware::class,
+            'instructor' => \App\Http\Middleware\InstructorMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(function (\Illuminate\Http\Request $request, \Throwable $e) {
