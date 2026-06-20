@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AntiCheatController;
 use App\Http\Controllers\Instructor\CourseController;
 use App\Http\Controllers\Instructor\ExamController;
 use App\Http\Controllers\Instructor\QuestionController;
@@ -20,7 +21,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [ProfileController::class, 'show']);
 
-    
+     // Anti-Cheat AI
+    Route::post('/exam/check-frame', [AntiCheatController::class, 'checkFrame']);
+
+
     // Instructor Routes 
     
     Route::middleware('role:instructor')->group(function () {
