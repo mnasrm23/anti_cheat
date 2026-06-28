@@ -41,6 +41,7 @@ class CourseFactory extends Factory
         return [
             'name' => $courseName,
             'code' => $courseCode,
+            'join_code' => \App\Models\Course::generateJoinCode(),
             'description' => fake()->paragraph(3),
             'credit_hours' => fake()->randomElement([2, 3, 4]),
             'instructor_id' => User::factory()->instructor(),

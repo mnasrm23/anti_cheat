@@ -11,7 +11,13 @@ class Exam extends Model
         'total_marks','duration','start_time','end_time'
     ];
 
-    protected $dates = ['start_time','end_time'];
+    protected function casts(): array
+    {
+        return [
+            'start_time' => 'datetime',
+            'end_time' => 'datetime',
+        ];
+    }
 
     public function course()
     {
@@ -34,4 +40,8 @@ class Exam extends Model
             ->withPivot('score', 'started_at', 'submitted_at');
     }
 
+    public function violations()
+    {
+        return $this->hasMany(ExamViolation::class);
+    }
 }

@@ -56,6 +56,9 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
+        "test:live": [
+            "@php scripts/test-live-integration.php"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
@@ -87,7 +90,8 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
-        }
+        },
+        "platform-check": true
     },
     "minimum-stability": "stable",
     "prefer-stable": true

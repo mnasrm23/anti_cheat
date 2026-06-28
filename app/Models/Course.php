@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Course extends Model
 {
    protected $fillable = [
-        'name','code','description','instructor_id','credit_hours'
+        'name','code','join_code','description','instructor_id','credit_hours'
     ];
 
     public function instructor()
@@ -18,5 +18,19 @@ class Course extends Model
     public function exams()
     {
         return $this->hasMany(Exam::class);
+    }
+
+    public function enrolledStudents()
+    {
+        return $this->belongsToMany(User::class, 'course_student', 'course_id', 'student_id')
+            ->withTimestamps();
+    }
+
+    public static function generateJoinCode()
+    {
+        do {
+            $code = strtoupper(str()->random(8));
+        } while (static::where('join_code', $code)->exists());
+        return $code;
     }
 }

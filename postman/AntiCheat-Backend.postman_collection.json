@@ -1,0 +1,1028 @@
+{
+    "info": {
+        "_postman_id": "f8e7d6c5-b4a3-9281-7654-3210fedcba98",
+        "name": "Anti-Cheat Backend",
+        "description": "Complete Postman Collection v2.1 for the Laravel Anti-Cheat Backend API.\n\n## Setup\n1. Import this collection and `Environment.postman_environment.json`.\n2. Select the **Anti-Cheat Local** environment.\n3. Ensure `baseUrl` is `http://127.0.0.1:8000` (no trailing slash, no `/api`).\n4. Run **Login (Instructor)** or **Login (Student)** \u2014 the Bearer token is saved automatically.\n5. All authenticated requests reuse `{{token}}` via collection-level Bearer auth.\n\n## Important\nAll API endpoints use the `{{apiBaseUrl}}` prefix (`http://127.0.0.1:8000/api`).\nDo not call `/register` or `/profile` without the `/api` prefix \u2014 those are web routes.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "pm.request.headers.upsert({ key: 'Accept', value: 'application/json' });"
+                ]
+            }
+        }
+    ],
+    "item": [
+        {
+            "name": "Auth & Profile",
+            "description": "Public auth endpoints and profile. Login/Register automatically save the Bearer token to the environment.",
+            "item": [
+                {
+                    "name": "Register (Instructor)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const json = pm.response.json();",
+                                    "    if (json.data && json.data.token) {",
+                                    "        pm.environment.set('token', json.data.token);",
+                                    "        pm.collectionVariables.set('token', json.data.token);",
+                                    "        pm.environment.set('role', json.data.role);",
+                                    "        pm.environment.set('instructorEmail', json.data.user.email);",
+                                    "    }",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Jane Instructor\",\n    \"email\": \"jane.instructor@example.com\",\n    \"password\": \"Password123!\",\n    \"password_confirmation\": \"Password123!\",\n    \"role\": \"instructor\"\n}"
+                        },
+                        "url": "{{apiBaseUrl}}/register",
+                        "description": "Register a new instructor account. Returns token on success."
+                    }
+                },
+                {
+                    "name": "Register (Student)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const json = pm.response.json();",
+                                    "    if (json.data && json.data.token) {",
+                                    "        pm.environment.set('token', json.data.token);",
+                                    "        pm.collectionVariables.set('token', json.data.token);",
+                                    "        pm.environment.set('role', json.data.role);",
+                                    "        pm.environment.set('studentEmail', json.data.user.email);",
+                                    "    }",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"John Student\",\n    \"email\": \"john.student@example.com\",\n    \"password\": \"Password123!\",\n    \"password_confirmation\": \"Password123!\",\n    \"role\": \"student\"\n}"
+                        },
+                        "url": "{{apiBaseUrl}}/register",
+                        "description": "Register a new student account. Returns token on success."
+                    }
+                },
+                {
+                    "name": "Login (Instructor)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const json = pm.response.json();",
+                                    "    if (json.data && json.data.token) {",
+                                    "        pm.environment.set('token', json.data.token);",
+                                    "        pm.collectionVariables.set('token', json.data.token);",
+                                    "        pm.environment.set('role', json.data.role);",
+                                    "        console.log('Token saved for role:', json.data.role);",
+                                    "    }",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"{{instructorEmail}}\",\n    \"password\": \"{{instructorPassword}}\"\n}"
+                        },
+                        "url": "{{apiBaseUrl}}/login",
+                        "description": "Login as instructor. Automatically captures Bearer token to `{{token}}`."
+                    }
+                },
+                {
+                    "name": "Login (Student)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const json = pm.response.json();",
+                                    "    if (json.data && json.data.token) {",
+                                    "        pm.environment.set('token', json.data.token);",
+                                    "        pm.collectionVariables.set('token', json.data.token);",
+                                    "        pm.environment.set('role', json.data.role);",
+                                    "        console.log('Token saved for role:', json.data.role);",
+                                    "    }",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"{{studentEmail}}\",\n    \"password\": \"{{studentPassword}}\"\n}"
+                        },
+                        "url": "{{apiBaseUrl}}/login",
+                        "description": "Login as student. Automatically captures Bearer token to `{{token}}`."
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{apiBaseUrl}}/logout",
+                        "description": "Revoke the current access token."
+                    }
+                },
+                {
+                    "name": "Profile",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{apiBaseUrl}}/profile",
+                        "description": "Get the authenticated user's profile."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Instructor APIs",
+            "description": "Endpoints requiring the instructor role. Login as instructor first.",
+            "item": [
+                {
+                    "name": "Dashboard",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{apiBaseUrl}}/instructor/dashboard",
+                        "description": "Instructor dashboard stats: courses, exams, students, violations."
+                    }
+                },
+                {
+                    "name": "Courses",
+                    "item": [
+                        {
+                            "name": "List Courses",
+                            "request": {
+                                "method": "GET",
+                                "url": "{{apiBaseUrl}}/courses",
+                                "description": "Paginated list of courses owned by the instructor."
+                            }
+                        },
+                        {
+                            "name": "Create Course",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "type": "text/javascript",
+                                        "exec": [
+                                            "if (pm.response.code === 201) {",
+                                            "    const json = pm.response.json();",
+                                            "    if (json.data) {",
+                                            "        pm.environment.set('courseId', json.data.id);",
+                                            "        pm.environment.set('joinCode', json.data.join_code);",
+                                            "        console.log('courseId:', json.data.id, 'joinCode:', json.data.join_code);",
+                                            "    }",
+                                            "}"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"Introduction to Artificial Intelligence\",\n    \"code\": \"CS-402\",\n    \"description\": \"Fundamentals of Machine Learning, Deep Learning, and search algorithms.\",\n    \"credit_hours\": 4\n}"
+                                },
+                                "url": "{{apiBaseUrl}}/courses",
+                                "description": "Create a new course. Auto-saves `courseId` and `joinCode`."
+                            }
+                        },
+                        {
+                            "name": "Get Course",
+                            "request": {
+                                "method": "GET",
+                                "url": "{{apiBaseUrl}}/courses/{{courseId}}",
+                                "description": "Get course details including exams."
+                            }
+                        },
+                        {
+                            "name": "Update Course",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"Advanced Artificial Intelligence\",\n    \"description\": \"Updated course description.\",\n    \"credit_hours\": 3\n}"
+                                },
+                                "url": "{{apiBaseUrl}}/courses/{{courseId}}",
+                                "description": "Update course fields."
+                            }
+                        },
+                        {
+                            "name": "Delete Course",
+                            "request": {
+                                "method": "DELETE",
+                                "url": "{{apiBaseUrl}}/courses/{{courseId}}",
+                                "description": "Delete a course."
+                            }
+                        },
+                        {
+                            "name": "Import Students (CSV)",
+                            "request": {
+                                "method": "POST",
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "csv_file",
+                                            "type": "file",
+                                            "src": "",
+                                            "description": "CSV format: name,email,password (password optional)"
+                                        }
+                                    ]
+                                },
+                                "url": "{{apiBaseUrl}}/courses/{{courseId}}/import-students",
+                                "description": "Bulk import students from CSV. Header row: name,email,password"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Exams",
+                    "item": [
+                        {
+                            "name": "List Exams",
+                            "request": {
+                                "method": "GET",
+                                "url": "{{apiBaseUrl}}/exams",
+                                "description": "Paginated list of exams owned by the instructor."
+                            }
+                        },
+                        {
+                            "name": "Create Exam",
+                            "event": [
+                                {
+                                    "listen": "prerequest",
+                                    "script": {
+                                        "type": "text/javascript",
+                                        "exec": [
+                                            "const now = new Date();",
+                                            "const start = new Date(now.getTime() - 3600000);",
+                                            "const end = new Date(now.getTime() + 86400000);",
+                                            "const fmt = (d) => d.toISOString().slice(0, 19).replace('T', ' ');",
+                                            "pm.environment.set('examStartTime', fmt(start));",
+                                            "pm.environment.set('examEndTime', fmt(end));"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "type": "text/javascript",
+                                        "exec": [
+                                            "if (pm.response.code === 201) {",
+                                            "    const json = pm.response.json();",
+                                            "    if (json.data) {",
+                                            "        pm.environment.set('examId', json.data.id);",
+                                            "        console.log('examId:', json.data.id);",
+                                            "    }",
+                                            "}"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"title\": \"Midterm Examination\",\n    \"course_id\": {{courseId}},\n    \"total_marks\": 50,\n    \"duration\": 90,\n    \"start_time\": \"{{examStartTime}}\",\n    \"end_time\": \"{{examEndTime}}\"\n}"
+                                },
+                                "url": "{{apiBaseUrl}}/exams",
+                                "description": "Create an exam for a course. Auto-saves `examId`."
+                            }
+                        },
+                        {
+                            "name": "Get Exam",
+                            "request": {
+                                "method": "GET",
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}",
+                                "description": "Get exam with questions and options (includes is_correct for instructor)."
+                            }
+                        },
+                        {
+                            "name": "Update Exam",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"title\": \"Updated Midterm Examination\",\n    \"total_marks\": 60,\n    \"duration\": 120\n}"
+                                },
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}",
+                                "description": "Update exam fields."
+                            }
+                        },
+                        {
+                            "name": "Delete Exam",
+                            "request": {
+                                "method": "DELETE",
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}",
+                                "description": "Delete an exam."
+                            }
+                        },
+                        {
+                            "name": "List Exam Violations",
+                            "request": {
+                                "method": "GET",
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}/violations",
+                                "description": "List all violations reported for an exam."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Questions",
+                    "item": [
+                        {
+                            "name": "List Questions",
+                            "request": {
+                                "method": "GET",
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}/questions",
+                                "description": "Paginated list of questions for an exam."
+                            }
+                        },
+                        {
+                            "name": "Create Question (MCQ)",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "type": "text/javascript",
+                                        "exec": [
+                                            "if (pm.response.code === 201) {",
+                                            "    const json = pm.response.json();",
+                                            "    if (json.data) {",
+                                            "        pm.environment.set('questionId', json.data.id);",
+                                            "        if (json.data.options && json.data.options.length) {",
+                                            "            pm.environment.set('optionId', json.data.options[0].id);",
+                                            "            const correct = json.data.options.find(o => o.is_correct);",
+                                            "            if (correct) pm.environment.set('correctOptionId', correct.id);",
+                                            "        }",
+                                            "        console.log('questionId:', json.data.id);",
+                                            "    }",
+                                            "}"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"question_text\": \"What is the primary feature of Object-Oriented Programming?\",\n    \"type\": \"mcq\",\n    \"mark\": 5,\n    \"options\": [\n        { \"text\": \"Polymorphism\", \"is_correct\": true },\n        { \"text\": \"Linear processing\", \"is_correct\": false },\n        { \"text\": \"Manual memory allocation\", \"is_correct\": false },\n        { \"text\": \"GOTO commands\", \"is_correct\": false }\n    ]\n}"
+                                },
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}/questions",
+                                "description": "Create an MCQ question with options. Auto-saves questionId and option IDs."
+                            }
+                        },
+                        {
+                            "name": "Create Question (True/False)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"question_text\": \"PHP is a statically typed language.\",\n    \"type\": \"true_false\",\n    \"mark\": 2,\n    \"options\": [\n        { \"text\": \"True\", \"is_correct\": false },\n        { \"text\": \"False\", \"is_correct\": true }\n    ]\n}"
+                                },
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}/questions",
+                                "description": "Create a true/false question."
+                            }
+                        },
+                        {
+                            "name": "Create Question (Text)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"question_text\": \"Explain the difference between supervised and unsupervised learning.\",\n    \"type\": \"text\",\n    \"mark\": 10\n}"
+                                },
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}/questions",
+                                "description": "Create a free-text question (no options)."
+                            }
+                        },
+                        {
+                            "name": "Get Question",
+                            "request": {
+                                "method": "GET",
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}/questions/{{questionId}}",
+                                "description": "Get a single question with options."
+                            }
+                        },
+                        {
+                            "name": "Update Question",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"question_text\": \"Updated question text.\",\n    \"mark\": 8\n}"
+                                },
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}/questions/{{questionId}}",
+                                "description": "Update question fields."
+                            }
+                        },
+                        {
+                            "name": "Delete Question",
+                            "request": {
+                                "method": "DELETE",
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}/questions/{{questionId}}",
+                                "description": "Delete a question."
+                            }
+                        },
+                        {
+                            "name": "Options",
+                            "item": [
+                                {
+                                    "name": "List Options",
+                                    "request": {
+                                        "method": "GET",
+                                        "url": "{{apiBaseUrl}}/exams/{{examId}}/questions/{{questionId}}/options",
+                                        "description": "Paginated list of options for a question."
+                                    }
+                                },
+                                {
+                                    "name": "Create Option",
+                                    "event": [
+                                        {
+                                            "listen": "test",
+                                            "script": {
+                                                "type": "text/javascript",
+                                                "exec": [
+                                                    "if (pm.response.code === 201) {",
+                                                    "    const json = pm.response.json();",
+                                                    "    if (json.data) {",
+                                                    "        pm.environment.set('optionId', json.data.id);",
+                                                    "    }",
+                                                    "}"
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    "request": {
+                                        "method": "POST",
+                                        "header": [
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"option_text\": \"Encapsulation\",\n    \"is_correct\": false\n}"
+                                        },
+                                        "url": "{{apiBaseUrl}}/exams/{{examId}}/questions/{{questionId}}/options",
+                                        "description": "Add an option to an existing question."
+                                    }
+                                },
+                                {
+                                    "name": "Get Option",
+                                    "request": {
+                                        "method": "GET",
+                                        "url": "{{apiBaseUrl}}/exams/{{examId}}/questions/{{questionId}}/options/{{optionId}}",
+                                        "description": "Get a single option."
+                                    }
+                                },
+                                {
+                                    "name": "Update Option",
+                                    "request": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"option_text\": \"Updated option text\",\n    \"is_correct\": false\n}"
+                                        },
+                                        "url": "{{apiBaseUrl}}/exams/{{examId}}/questions/{{questionId}}/options/{{optionId}}",
+                                        "description": "Update an option."
+                                    }
+                                },
+                                {
+                                    "name": "Delete Option",
+                                    "request": {
+                                        "method": "DELETE",
+                                        "url": "{{apiBaseUrl}}/exams/{{examId}}/questions/{{questionId}}/options/{{optionId}}",
+                                        "description": "Delete an option."
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Student APIs",
+            "description": "Endpoints requiring the student role. Login as student first.",
+            "item": [
+                {
+                    "name": "Dashboard",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{apiBaseUrl}}/student/dashboard",
+                        "description": "Student dashboard: enrolled courses, exams taken, available exams."
+                    }
+                },
+                {
+                    "name": "Courses",
+                    "item": [
+                        {
+                            "name": "Join Course",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"join_code\": \"{{joinCode}}\"\n}"
+                                },
+                                "url": "{{apiBaseUrl}}/courses/join",
+                                "description": "Enroll in a course using its join code."
+                            }
+                        },
+                        {
+                            "name": "Enrolled Courses",
+                            "request": {
+                                "method": "GET",
+                                "url": "{{apiBaseUrl}}/student/courses",
+                                "description": "List courses the student is enrolled in."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Exams",
+                    "item": [
+                        {
+                            "name": "Available Exams",
+                            "request": {
+                                "method": "GET",
+                                "url": "{{apiBaseUrl}}/exams/available",
+                                "description": "List exams currently available to take."
+                            }
+                        },
+                        {
+                            "name": "Start Exam",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "type": "text/javascript",
+                                        "exec": [
+                                            "if (pm.response.code === 200) {",
+                                            "    const json = pm.response.json();",
+                                            "    if (json.exam_student_id) {",
+                                            "        pm.environment.set('sessionId', String(json.exam_student_id));",
+                                            "        pm.collectionVariables.set('sessionId', String(json.exam_student_id));",
+                                            "    }",
+                                            "}"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}/start",
+                                "description": "Start an exam attempt. Returns questions without correct answers. Saves `exam_student_id` to `{{sessionId}}` for proctoring."
+                            }
+                        },
+                        {
+                            "name": "Check Frame (AI Proctoring)",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "type": "text/javascript",
+                                        "exec": [
+                                            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                            "const json = pm.response.json();",
+                                            "pm.test('status true', () => pm.expect(json.status).to.eql(true));",
+                                            "pm.test('has anti_cheat', () => pm.expect(json.data.anti_cheat).to.be.an('object'));",
+                                            "pm.test('has can_continue', () => pm.expect(json.data.can_continue).to.be.a('boolean'));",
+                                            "pm.test('has violation_recorded', () => pm.expect(json.data.violation_recorded).to.be.a('boolean'));"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "exam_id",
+                                            "value": "{{examId}}",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "session_id",
+                                            "value": "{{sessionId}}",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "image",
+                                            "type": "file",
+                                            "src": "postman/test-frame.jpg",
+                                            "description": "Select postman/test-frame.jpg or any JPEG/PNG webcam frame."
+                                        }
+                                    ]
+                                },
+                                "url": "{{apiBaseUrl}}/exam/check-frame",
+                                "description": "Send a webcam frame to Laravel → FastAPI for AI proctoring. Run Start Exam first. Requires AI service: uvicorn backend.api.main:app --port 8001"
+                            }
+                        },
+                        {
+                            "name": "Submit Exam",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"answers\": [\n        {\n            \"question_id\": {{questionId}},\n            \"option_id\": {{correctOptionId}},\n            \"answer_text\": null\n        }\n    ]\n}"
+                                },
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}/submit",
+                                "description": "Submit exam answers. MCQ/true_false require option_id; text questions require answer_text."
+                            }
+                        },
+                        {
+                            "name": "Submit Exam (Text Answer)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"answers\": [\n        {\n            \"question_id\": {{questionId}},\n            \"option_id\": null,\n            \"answer_text\": \"Supervised learning uses labeled data; unsupervised learning finds patterns in unlabeled data.\"\n        }\n    ]\n}"
+                                },
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}/submit",
+                                "description": "Submit a text-type question answer."
+                            }
+                        },
+                        {
+                            "name": "Exam Result",
+                            "request": {
+                                "method": "GET",
+                                "url": "{{apiBaseUrl}}/exams/{{examId}}/result",
+                                "description": "Get the student's result for a submitted exam."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Violations",
+                    "item": [
+                        {
+                            "name": "Report Violation",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"exam_id\": {{examId}},\n    \"type\": \"tab_switch\",\n    \"description\": \"Student switched browser tabs during the exam.\",\n    \"metadata\": {\n        \"timestamp\": \"2026-06-27T10:30:00Z\",\n        \"count\": 1\n    }\n}"
+                                },
+                                "url": "{{apiBaseUrl}}/violations",
+                                "description": "Report an anti-cheat violation. Types: face_not_detected, multiple_faces, tab_switch, screen_share. Requires exam to be started first."
+                            }
+                        },
+                        {
+                            "name": "Report Violation (Face Not Detected)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"exam_id\": {{examId}},\n    \"type\": \"face_not_detected\",\n    \"description\": \"No face detected in webcam frame.\"\n}"
+                                },
+                                "url": "{{apiBaseUrl}}/violations",
+                                "description": "Report face not detected violation."
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "AI Service (FastAPI)",
+            "description": "Direct HTTP calls to the FastAPI anti-cheat service (default http://127.0.0.1:8001). Start with: .\\scripts\\start-ai-service.ps1",
+            "item": [
+                {
+                    "name": "Health Check",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Has status ok', () => pm.expect(json.status).to.eql('ok'));",
+                                    "pm.test('Has service name', () => pm.expect(json.service).to.eql('Anti Cheat AI'));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": { "type": "noauth" },
+                        "method": "GET",
+                        "url": "{{aiServiceUrl}}/health",
+                        "description": "Verify FastAPI is running. Expected: {\"status\":\"ok\",\"service\":\"Anti Cheat AI\"}"
+                    }
+                },
+                {
+                    "name": "Process Frame",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                                    "const json = pm.response.json();",
+                                    "pm.test('Has yolo', () => pm.expect(json.yolo).to.be.an('object'));",
+                                    "pm.test('Has gaze', () => pm.expect(json.gaze).to.be.an('object'));",
+                                    "pm.test('Has anti_cheat.status', () => pm.expect(json.anti_cheat.status).to.be.a('string'));"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": { "type": "noauth" },
+                        "method": "POST",
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "session_id",
+                                    "value": "{{sessionId}}",
+                                    "type": "text",
+                                    "description": "Proctoring session id (exam_student_id from Start Exam, or any string for direct AI test)"
+                                },
+                                {
+                                    "key": "image",
+                                    "type": "file",
+                                    "src": "postman/test-frame.jpg",
+                                    "description": "Webcam frame JPEG/PNG. Use postman/test-frame.jpg from repo."
+                                }
+                            ]
+                        },
+                        "url": "{{aiServiceUrl}}/frame",
+                        "description": "Send frame directly to FastAPI. Returns yolo, gaze, and anti_cheat session state."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Notifications",
+            "description": "Notification endpoints available to any authenticated user.",
+            "item": [
+                {
+                    "name": "List Notifications",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const json = pm.response.json();",
+                                    "    const items = json.data && json.data.data ? json.data.data : [];",
+                                    "    if (items.length > 0) {",
+                                    "        pm.environment.set('notificationId', items[0].id);",
+                                    "    }",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "url": "{{apiBaseUrl}}/notifications",
+                        "description": "Paginated list of notifications. Auto-saves first notificationId."
+                    }
+                },
+                {
+                    "name": "Unread Count",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{apiBaseUrl}}/notifications/unread-count",
+                        "description": "Get count of unread notifications."
+                    }
+                },
+                {
+                    "name": "Mark as Read",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{apiBaseUrl}}/notifications/{{notificationId}}/read",
+                        "description": "Mark a single notification as read."
+                    }
+                },
+                {
+                    "name": "Mark All as Read",
+                    "request": {
+                        "method": "PUT",
+                        "url": "{{apiBaseUrl}}/notifications/mark-all-read",
+                        "description": "Mark all notifications as read."
+                    }
+                },
+                {
+                    "name": "Delete Notification",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{apiBaseUrl}}/notifications/{{notificationId}}",
+                        "description": "Delete a single notification."
+                    }
+                },
+                {
+                    "name": "Delete All Notifications",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{apiBaseUrl}}/notifications/mark-all-read",
+                        "description": "Delete all notifications."
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://127.0.0.1:8000",
+            "type": "string"
+        },
+        {
+            "key": "apiBaseUrl",
+            "value": "http://127.0.0.1:8000/api",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "sessionId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "aiServiceUrl",
+            "value": "http://127.0.0.1:8001",
+            "type": "string"
+        },
+        {
+            "key": "examStartTime",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "examEndTime",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

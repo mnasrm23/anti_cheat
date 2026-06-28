@@ -10,25 +10,37 @@ class CourseController extends Controller
 {
     public function index()
     {
-        return Course::where('instructor_id',auth()->id())->get();
+        $courses = Course::where('instructor_id', auth()->id())->paginate(10);
+        return response()->json([
+            'status' => true,
+            'message' => 'Courses retrieved successfully',
+            'data' => $courses
+        ]);
     }
-// validation more secure validation error
+
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|unique:courses,code|max:50',
             'description' => 'nullable|string',
-            'credit_hours' => 'required|integer|min:1|max:10',
+            'credit_hours' => 'nullable|integer|min:1|max:10',
         ]);
 
-        return Course::create([
+        $course = Course::create([
             'name' => $validated['name'],
             'code' => $validated['code'],
             'description' => $validated['description'] ?? null,
-            'credit_hours' => $validated['credit_hours'],
+            'credit_hours' => $validated['credit_hours'] ?? 3,
             'instructor_id' => auth()->id(),
+            'join_code' => Course::generateJoinCode(),
         ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Course created successfully',
+            'data' => $course
+        ], 201);
     }
 
     public function show(Course $course)
@@ -37,6 +49,47 @@ class CourseController extends Controller
             abort(403, 'Unauthorized access to this course.');
         }
 
-        return $course->load('exams');
+        return response()->json([
+            'status' => true,
+            'message' => 'Course retrieved successfully',
+            'data' => $course->load('exams')
+        ]);
+    }
+
+    public function update(Request $request, Course $course)
+    {
+        if ($course->instructor_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to this course.');
+        }
+
+        $validated = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'code' => 'nullable|string|unique:courses,code,' . $course->id . '|max:50',
+            'description' => 'nullable|string',
+            'credit_hours' => 'nullable|integer|min:1|max:10',
+        ]);
+
+        $course->update($validated);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Course updated successfully',
+            'data' => $course
+        ]);
+    }
+
+    public function destroy(Course $course)
+    {
+        if ($course->instructor_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to this course.');
+        }
+
+        $course->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Course deleted successfully',
+            'data' => null
+        ]);
     }
 }

@@ -4,11 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class answer extends Model
+class Answer extends Model
 {
      protected $fillable = [
         'exam_id','question_id','student_id',
         'option_id','answer_text','is_correct'
+    ];
+
+    protected $hidden = [
+        'is_correct'
     ];
 
     public function question()

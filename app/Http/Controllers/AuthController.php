@@ -18,7 +18,7 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
             'role' => ['required', 'in:student,instructor'],
         ]);
-     //A function that encrypts data (hash)
+
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -31,17 +31,25 @@ class AuthController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Registration successful',
-            'token' => $token,
-            'role' => $user->role,
-            'user' => $user
+            'data' => [
+                'token' => $token,
+                'role' => $user->role,
+                'user' => $user
+            ]
         ], 201);
     }
     public function login(Request $request)
     {
-        if (!Auth::attempt($request->only('email','password'))) {
+        $validated = $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        if (!Auth::attempt($validated)) {
             return response()->json([
                 'status' => false,
-                'message' => 'Invalid credentials'
+                'message' => 'Invalid credentials',
+                'data' => null
             ], 401);
         }
 
@@ -50,9 +58,12 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => true,
-            'token' => $token,
-            'role' => $user->role,
-            'user' => $user
+            'message' => 'Login successful',
+            'data' => [
+                'token' => $token,
+                'role' => $user->role,
+                'user' => $user
+            ]
         ]);
     }
 
@@ -62,7 +73,8 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Logged out'
+            'message' => 'Logged out',
+            'data' => null
         ]);
     }
 }
