@@ -7,10 +7,13 @@ use App\Models\Answer;
 use App\Models\Exam;
 use App\Models\ExamStudent;
 use App\Models\Notification;
+use App\Services\InstructorExamResultsService;
 use Illuminate\Http\Request;
 
 class StudentExamController extends Controller
 {
+    public function __construct(protected InstructorExamResultsService $resultsService) {}
+
     public function available()
     {
         $enrolledCourseIds = auth()->user()->enrolledCourses()->pluck('courses.id');
@@ -201,14 +204,7 @@ class StudentExamController extends Controller
             'data' => ['exam_id' => $exam->id, 'score' => $score],
         ]);
 
-        // Notify instructor
-        Notification::create([
-            'user_id' => $exam->instructor_id,
-            'type' => 'exam_submitted',
-            'title' => 'New Exam Submission',
-            'message' => auth()->user()->name . " has submitted the exam \"{$exam->title}\" with a score of {$score}/{$exam->total_marks}.",
-            'data' => ['exam_id' => $exam->id, 'student_id' => auth()->id(), 'score' => $score],
-        ]);
+        $this->resultsService->upsertExamSubmissionNotification($exam);
 
         return response()->json([
             'status' => true,

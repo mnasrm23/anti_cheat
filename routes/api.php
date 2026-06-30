@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Instructor\CourseController;
 use App\Http\Controllers\Instructor\ExamController;
 use App\Http\Controllers\Instructor\InstructorDashboardController;
+use App\Http\Controllers\Instructor\InstructorExamResultsController;
 use App\Http\Controllers\Instructor\OptionController;
 use App\Http\Controllers\Instructor\QuestionController;
 use App\Http\Controllers\Instructor\StudentImportController;
@@ -60,6 +61,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/exams/{exam}', [ExamController::class, 'update']);
         Route::delete('/exams/{exam}', [ExamController::class, 'destroy']);
         Route::get('/exams/{examId}/violations', [ViolationController::class, 'forExam']);
+
+        Route::get('/instructor/exams/{exam}/results', [InstructorExamResultsController::class, 'index']);
+        Route::get('/instructor/exams/{exam}/students/{student}', [InstructorExamResultsController::class, 'show']);
 
         Route::get('/exams/{examId}/questions', [QuestionController::class, 'index']);
         Route::post('/exams/{examId}/questions', [QuestionController::class, 'store']);

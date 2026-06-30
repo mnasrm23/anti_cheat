@@ -424,6 +424,38 @@
                                 "url": "{{apiBaseUrl}}/exams/{{examId}}/violations",
                                 "description": "List all violations reported for an exam."
                             }
+                        },
+                        {
+                            "name": "Get Exam Results",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "const json = pm.response.json();",
+                                            "const items = json.data?.data ?? [];",
+                                            "if (items.length > 0 && items[0].student_id) {",
+                                            "    pm.environment.set('studentId', String(items[0].student_id));",
+                                            "    console.log('studentId:', items[0].student_id);",
+                                            "}"
+                                        ],
+                                        "type": "text/javascript"
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "GET",
+                                "url": "{{apiBaseUrl}}/instructor/exams/{{examId}}/results",
+                                "description": "Paginated list of students who took the exam. Marks the exam submission notification as read."
+                            }
+                        },
+                        {
+                            "name": "Get Student Result Details",
+                            "request": {
+                                "method": "GET",
+                                "url": "{{apiBaseUrl}}/instructor/exams/{{examId}}/students/{{studentId}}",
+                                "description": "Detailed result for a single student including answers, violations, and AI status."
+                            }
                         }
                     ]
                 },
